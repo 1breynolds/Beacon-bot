@@ -1,0 +1,22 @@
+{
+    "name": "3am-bot",
+    "version": "ALPHA",
+    "description": "Discord bot for the 3am community with various features",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"This is a test message\" && exit 1"
+    },
+    "keywords": [],
+    "author": "Ben Reynolds, Maxwell Wuchter",
+    "License": "Closed-source",
+    "dependencies": {
+        "discord.js": "^14.16.3",
+        "discord.js-commando": "^0.12.3",
+        "dotenv": "^16.4.7",
+        "i": "^0.3.7"
+    },
+    "devDependencies": {
+        "eslint": "^9.17.0",
+        "globals": "^15.13.0"
+    }
+}
