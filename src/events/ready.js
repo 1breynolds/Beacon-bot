@@ -24,5 +24,7 @@ module.exports = {
 
         // Load all commands
         await commandHandler(client);
+        console.log('Loaded commands:', client.commands.keys());
+        console.log(`[ready] Registered commands: ${client.commands.map(command => command.data.name).join(', ')}`)
     }
 };

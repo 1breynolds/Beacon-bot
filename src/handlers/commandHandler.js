@@ -1,38 +1,39 @@
-const fs = require('fs');
 const path = require('path');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord.js');
+const { REST, Routes } = require('discord.js');
+const { getCommandFiles, validateCommand } = require('../utils/commandUtils');
 require('dotenv').config();
 
 module.exports = async (client) => {
     const commands = [];
     const commandsPath = path.join(__dirname, '../commands');
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+    const commandFiles = getCommandFiles(commandsPath); // Use utility to get command files
 
-    // Load all command files
-    for (const file of commandFiles) {
-        const command = require(path.join(commandsPath, file));
-        if ('data' in command && 'execute' in command) {
-            client.commands.set(command.data.name, command);
-            //console.log(command.data.toJSON());
+    // Load and validate commands
+    for (const filePath of commandFiles) {
+        const command = require(filePath);
+        if (validateCommand(command, filePath)) {
             commands.push(command.data.toJSON());
-        } else {
-            console.warn(`[WARNING] The command at ${file} is missing a required "data" or "execute" property.`);
+            client.commands.set(command.data.name, command);
         }
     }
 
-    // Register slash commands with Discord
-    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+    // Log all commands BEFORE API call
+    //console.log(`[commandHandler] PRE API Commands loaded: ${commands.map(cmd => cmd.name)}`)
 
+    // Register commands with Discord API
+    const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     try {
-        console.log('Started refreshing application (/) commands.');
+        console.log('[commandHandler] Started refreshing application (/) commands.');
 
-        await rest.put(
+        const response = await rest.put(
             Routes.applicationCommands(process.env.CLIENT_ID),
             { body: commands },
         );
 
-        console.log('Successfully reloaded application (/) commands.');
+        console.log('[commandHandler] Successfully reloaded application (/) commands.');
+
+        // Log all registered commands AFTER API call
+        //console.log(`[commandHandler] Post API Registered command names: ${response.map(cmd => cmd.name)}`)
     } catch (error) {
         console.error(error);
     }

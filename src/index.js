@@ -19,4 +19,4 @@ client.commands = new Collection();
 eventHandler(client);
 
 // client Login
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.TOKEN);

@@ -1,7 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
 const { assignRole } = require('../utils/roleUtils');
 const { createWelcomeEmbed } = require('../utils/embedUtils');
-const { fetchInvites } = require('../handlers/inviteTracker');
+const { trackInviteUsage } = require('../handlers/inviteTracker');
 const config = require('../config.json');
 
 module.exports = {
@@ -14,7 +13,7 @@ module.exports = {
         await assignRole(member, config.ROLE_MYSTERIOUS);
 
         // Track invites
-        const usedInvite = await fetchInvites(guild, member);
+        const usedInvite = await trackInviteUsage(guild, member);
         const welcomeEmbed = createWelcomeEmbed(member, usedInvite);
 
         // Send welcome embed
