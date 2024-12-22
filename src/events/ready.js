@@ -1,7 +1,8 @@
 const { Collection } = require('discord.js');
 const { initializeInvites } = require('../handlers/inviteTracker');
-const { SERVER_ID } = require('../config.json');
+const { SERVER_ID, YT_ALERT_CHANNEL } = require('../config.json');
 const commandHandler = require('../handlers/commandHandler');
+const { monitorChannel } = require('../handlers/youtubeMonitor');
 
 module.exports = {
     name: 'ready',
@@ -26,5 +27,11 @@ module.exports = {
         await commandHandler(client);
         console.log('Loaded commands:', client.commands.keys());
         console.log(`[ready] Registered commands: ${client.commands.map(command => command.data.name).join(', ')}`)
+
+        // Schedule YouTube monitoring every 5 minutes
+        setInterval(() => {
+            monitorChannel(client, YT_ALERT_CHANNEL);
+        }, 300000);
+        console.log('Youtube monitor initialized.');
     }
 };
