@@ -3,6 +3,7 @@ const { initializeInvites } = require('../handlers/inviteTracker');
 const { SERVER_ID, YT_ALERT_CHANNEL } = require('../config.json');
 const commandHandler = require('../handlers/commandHandler');
 const { monitorChannel } = require('../handlers/youtubeMonitor');
+const { updateServerCountChannel } = require('../handlers/serverCountHandler');
 
 module.exports = {
     name: 'ready',
@@ -26,7 +27,11 @@ module.exports = {
         // Load all commands
         await commandHandler(client);
         console.log('Loaded commands:', client.commands.keys());
-        console.log(`[ready] Registered commands: ${client.commands.map(command => command.data.name).join(', ')}`)
+        console.log(`[ready] Registered commands: ${client.commands.map(command => command.data.name).join(', ')}`);
+
+        // Initialize member count
+        await updateServerCountChannel(targetGuild);
+        console.log('Server count channel initialized!');
 
         // Schedule YouTube monitoring every 5 minutes
         setInterval(() => {
