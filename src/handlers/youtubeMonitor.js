@@ -3,10 +3,36 @@ const axios = require('axios');
 const { 
     YOUTUBE_API_KEY, 
     YOUTUBE_CHANNEL_ID, 
-} = require('../config.json')
+} = require('../config.json');
+const notifiedVideosPath = '../data/notifiedVideos.json';
 
 // Store most recently uploaded video ID
 let lastVideoId = null
+
+// Read list of notified videos from JSON file
+const readNotifiedVideos = () => {
+    try {
+        const data = FileSystem.readFileSync(notifiedVideosPath, 'utf-8');
+        return JSON.parse(data).notifiedVideos;
+    } catch (e) {
+        console.error('[youtubeMonitor] Error reading notified videos:', e);
+    }
+};
+
+// Save the updated list of notified videos to the JSON file
+const saveNotifiedVideos = (notifiedVideos) => {
+    try {
+        fs.writeFileSync(notifiedVideosPath, JSON.stringify({ notifiedVideos }, null, 2), 'utf-8');
+    } catch (e) {
+        console.error('[youtubeMonitor] Error saving notified videos:', e);
+    }
+};
+
+// Check if the video has already been notified
+const hasBeenNotified = (videoId) => {
+    const notifiedVideos = readNotifiedVideos();
+    return notifiedVideos.includes(videoId);
+};
 
 // Fetch latest video from channel
 async function fetchLatestVideo() {
@@ -42,21 +68,25 @@ async function monitorChannel(client, channelIdToAlert) {
     const latestVideo = await fetchLatestVideo();
     if (!latestVideo) return;
 
-    if (latestVideo.videoId !== lastVideoId) {
-        // update last video ID
-        lastVideoId = latestVideo.videoId;
-
-        // get the discord channel to send the alert
+    if (!hasBeenNotified(latestVideo.videoId)) {
+        // Send a message to the alert channel
         const channel = client.channels.cache.get(channelIdToAlert);
-        if(!channel) {
+        if (!channel) {
             console.error(`[youtubeMonitor] Discord channel with ID ${channelIdToAlert} not found.`);
             return;
         }
 
-        // send a message to alert channel
+        // Send a message to the Discord channel
         channel.send({
             content: `🎥 **New 3am Clips video uploaded!**\n${latestVideo.url}`,
         });
+
+        // Update the list of notified videos
+        const notifiedVideos = readNotifiedVideos();
+        notifiedVideos.push(latestVideo.videoId);
+        saveNotifiedVideos(notifiedVideos);
+    } else {
+        console.log('[youtubeMonitor] Video already notified:', latestVideo.title);
     }
 }
 

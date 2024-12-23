@@ -1,6 +1,7 @@
 {
     "ignore": [
-      "src/data/inviteData.json"
+      "src/data/inviteData.json",
+      "src/data/notifiedVideos.json"
     ]
   }
   
