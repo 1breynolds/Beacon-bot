@@ -55,7 +55,7 @@ async function monitorChannel(client, channelIdToAlert) {
 
         // send a message to alert channel
         channel.send({
-            content: `🎥 **New 3am Clips video uploaded!**\n**${latestVideo.title}**\n${latestVideo.url}`,
+            content: `🎥 **New 3am Clips video uploaded!**\n${latestVideo.url}`,
         });
     }
 }

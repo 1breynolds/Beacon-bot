@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { INVITE_DATA_PATH } = require('../config.json');
 
 /**
  * Recursively traverses the directory to load all `.js` files.
@@ -39,7 +40,59 @@ function validateCommand(command, filePath) {
     }
 }
 
+// ========== inviteLeaderboard ==========
+/**
+ * Read invite data from the inviteData.json file.
+ * @returns {Object} The parsed invite data from the JSON file.
+ */
+const readInviteData = () => {
+    try {
+        const data = fs.readFileSync(INVITE_DATA_PATH, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading invite data:', error);
+        return {};
+    }
+};
+
+/**
+ * Generates the leaderboard data for the top 10 invite leaders.
+ * @returns {Array} An array of the top 10 users with their invite counts.
+ */
+const generateLeaderboard = () => {
+    const inviteData = readInviteData();
+
+    const leaderboard = [];
+    
+    // Loop through each guild and inviter to create leaderboard rows
+    for (const guildId in inviteData) {
+        const guild = inviteData[guildId];
+        for (const inviterId in guild) {
+            const inviter = guild[inviterId];
+            const totalInvites = inviter.regular + inviter.left + inviter.fake;
+
+            leaderboard.push({
+                username: inviterId,
+                totalInvites,
+                regular: inviter.regular,
+                left: inviter.left,
+                fake: inviter.fake,
+            });
+        }
+    }
+
+    // Sort the leaderboard based on total invites in descending order
+    leaderboard.sort((a, b) => b.totalInvites - a.totalInvites);
+
+    // Get the top 10 users
+    const topUsers = leaderboard.slice(0, 10);
+
+    return topUsers;
+};
+
 module.exports = {
     getCommandFiles,
     validateCommand,
+    generateLeaderboard,
 };
+

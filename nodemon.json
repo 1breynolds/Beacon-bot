@@ -1,0 +1,6 @@
+{
+    "ignore": [
+      "src/data/inviteData.json"
+    ]
+  }
+  
