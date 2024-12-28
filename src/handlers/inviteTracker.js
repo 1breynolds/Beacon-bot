@@ -2,13 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { INVITE_DATA_PATH } = require('../config.json');
 
-// Path for invite data file
-const inviteDataPath = INVITE_DATA_PATH
-
 // Read data from file
-module.exports.readInviteData = () => {
+const readInviteData = () => {
     try {
-        const data = fs.readFileSync(inviteDataPath, 'utf-8');
+        const data = fs.readFileSync(INVITE_DATA_PATH, 'utf-8');
         return JSON.parse(data);
     } catch (e) {
         console.error('[inviteTracker] Error reading invite data:', e);
@@ -17,9 +14,9 @@ module.exports.readInviteData = () => {
 };
 
 // Save data to file
-module.exports.saveInviteData = (data) => {
+const saveInviteData = (data) => {
     try {
-        fs.writeFileSync(inviteDataPath, JSON.stringify(data, null, 2), 'utf-8');
+        fs.writeFileSync(INVITE_DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
     } catch (e) {
         console.error('[inviteTracker] Error saving invite data:', e);
     }
@@ -27,7 +24,7 @@ module.exports.saveInviteData = (data) => {
 
 // Update the invite data
 const updateInviteData = (guildId, userId, category, count) => {
-    const inviteData = readInviteData();
+    const inviteData = this.readInviteData();
 
     // Ensure the guild exists
     if (!inviteData[guildId]) {
@@ -51,7 +48,7 @@ const updateInviteData = (guildId, userId, category, count) => {
     saveInviteData(inviteData);
 };
 
-module.exports.initializeInvites = async (client, guild) => {
+const initializeInvites = async (client, guild) => {
     try {
         const invites = await guild.invites.fetch();
         const inviteData = readInviteData();
@@ -88,7 +85,7 @@ module.exports.initializeInvites = async (client, guild) => {
 };
 
 
-module.exports.trackInviteUsage = async (guild, member) => {
+const trackInviteUsage = async (guild, member) => {
     const newInvites = await guild.invites.fetch();
     const inviteData = readInviteData();
 
@@ -129,7 +126,7 @@ module.exports.trackInviteUsage = async (guild, member) => {
     return usedInvite;
 };
 
-module.exports.handleMemberLeave = async (client, member) => {
+const handleMemberLeave = async (client, member) => {
     const inviteData = readInviteData();
     const newInvites = await member.guild.invites.fetch();
     let leftInvite = null;
@@ -152,3 +149,11 @@ module.exports.handleMemberLeave = async (client, member) => {
 
     saveInviteData(inviteData); // save the updated data
 };
+
+module.exports = {
+    readInviteData,
+    saveInviteData,
+    initializeInvites,
+    trackInviteUsage,
+    handleMemberLeave
+}

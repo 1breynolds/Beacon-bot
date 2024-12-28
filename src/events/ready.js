@@ -1,15 +1,16 @@
 const { Collection } = require('discord.js');
-const { initializeInvites } = require('../handlers/inviteTracker');
-const { SERVER_ID, YT_ALERT_CHANNEL } = require('../config.json');
+const { SERVER_ID, SOCIALS_ALERT_CHANNEL, CHECK_INTERVAL } = require('../config.json');
 const commandHandler = require('../handlers/commandHandler');
-const { monitorChannel } = require('../handlers/youtubeMonitor');
+const { initializeInvites } = require('../handlers/inviteTracker');
+const { monitorYouTube } = require('../handlers/youtubeMonitor');
+const { monitorTikTok } = require('../handlers/tiktokMonitor');
 const { updateServerCountChannel } = require('../handlers/serverCountHandler');
 
 module.exports = {
     name: 'ready',
     once: true,
     async execute (client) {
-        console.log(`${client.user.displayName} ready for takeoff.`);
+        console.log(`---------------------\n${client.user.displayName} ready for takeoff.`);
 
         // Find target guild by its ID
         const targetGuild = client.guilds.cache.get(SERVER_ID);
@@ -26,17 +27,17 @@ module.exports = {
 
         // Load all commands
         await commandHandler(client);
-        console.log('Loaded commands:', client.commands.keys());
-        console.log(`[ready] Registered commands: ${client.commands.map(command => command.data.name).join(', ')}`);
+        console.log('[ready] Loaded commands:', client.commands.keys());
 
         // Initialize member count
         await updateServerCountChannel(targetGuild);
-        console.log('Server count channel initialized!');
+        console.log('[ready] Server count channel initialized.');
 
         // Schedule YouTube monitoring every 5 minutes
         setInterval(() => {
-            monitorChannel(client, YT_ALERT_CHANNEL);
-        }, 300000);
-        console.log('Youtube monitor initialized.');
+            monitorYouTube(client, SOCIALS_ALERT_CHANNEL);
+            monitorTikTok(client, SOCIALS_ALERT_CHANNEL);
+        }, CHECK_INTERVAL);
+        console.log('[ready] Socials monitor initialized.');
     }
 };

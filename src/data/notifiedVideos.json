@@ -1,4 +1,14 @@
 {
-    "notifiedVideos": ["video_id_1", "video_id_2"]
+  "youtube": {
+    "notifiedVideos": [
+      "YouTubeVideoIDs",
+      "c3M6kkflqCo",
+      "8Ph7yy9qbXE"
+    ]
+  },
+  "tiktok": {
+    "notifiedVideos": [
+      "TikTokVideoIDs"
+    ]
   }
-  
+}
