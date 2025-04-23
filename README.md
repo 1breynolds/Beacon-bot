@@ -1,39 +1,70 @@
 # **3am Discord Bot**
 
-Welcome to the **3am Discord Bot**, a custom-built bot designed to enhance engagement, streamline server management, and create a more interactive and inclusive experience for members. This bot offers a variety of features, ranging from automated role management to real-time activity tracking, ensuring your server runs smoothly while keeping members engaged.
+The **3am Discord Bot** is a powerful, modular, and fully customizable bot designed to enhance server management, encourage member engagement, and maintain a safe and interactive environment for your community.
 
 ---
 
-## **Features**
+## ⚙️ Features Overview
 
 ### 1. **Custom Welcome Messages**
-- Sends personalized welcome messages to new members in a designated channel.  
-- Makes new users feel valued and introduces them to the server.
+- Sends personalized messages to new members in a designated welcome channel.
+- Creates a warm and inclusive atmosphere from the start.
 
 ### 2. **Auto Role Assignment**
-- Automatically assigns a default role to new members upon joining the server.  
-- Helps streamline server moderation and onboarding.
+- Automatically gives a default role when members join.
+- Helps with onboarding and basic permissions setup.
 
 ### 3. **Invite Tracker**
-- Tracks which invite link was used by a new member to join.  
-- Allows admins to monitor invite activity and reward members for community growth.
+- Tracks which invite code was used by new members.
+- Enables invite leaderboard systems or referral programs.
 
-### 4. **Ticket System**
-- Implements a ticketing system for private support or member inquiries.  
-- Members can create, manage, and close tickets with ease.  
+### 4. **Ticketing System**
+- Allows users to create and manage private support tickets.
+- Great for handling mod support, server issues, or general inquiries.
 
-### 5. **Private Rooms**
-- Allows members to create temporary private voice channels for their own groups.  
-- Channels are automatically deleted after a period of inactivity.
+### 5. **Private Voice Rooms**
+- Lets members generate their own private voice channels.
+- Temporary rooms auto-delete after inactivity.
 
 ### 6. **Server Member Count**
-- Displays the real-time member count in a designated channel or message.  
-- Keeps everyone updated on the server’s growth.
+- Updates a channel/message with the server's live member count.
+- Keeps community growth visible.
 
-### 7. **Real-Time Role Updates Based on Activity**
-- Dynamically updates member roles as they reach specific activity thresholds.  
-- Encourages engagement and rewards active members.
+### 7. **Activity-Based Role System**
+- Dynamically rewards users with roles as they become more active.
+- Encourages chat participation and loyalty.
 
 ### 8. **Reaction Roles**
-- Lets members assign themselves roles by reacting to specific messages.  
-- Provides flexibility for members to join groups or access special channels.
+- Members can self-assign roles by reacting to specific messages.
+- Ideal for opt-in pings, access to channels, or interest groups.
+
+---
+
+## 🛡️ New Moderation Features
+
+### 9. **Image Moderation**
+- Automatically scans image and GIF attachments using the Sightengine API.
+- Detects and removes content flagged as:
+  - NSFW / Nudity
+  - Weapons
+  - Alcohol / Drugs
+
+### 10. **Mod-Log Channel**
+- All deleted or flagged images are logged to a `#mod-log` channel.
+- Includes user ID, reason, and original attachment URL.
+
+### 11. **Strike System (Escalation)**
+- Offenders are given **strikes** for flagged content.
+- Escalation logic:
+  - 1 Strike: Warning (DM)
+  - 2 Strikes: 10-minute timeout
+  - 3 Strikes: Kick
+  - 4+ Strikes: Permanent ban
+- Strikes are tracked in `data/strikes.json`.
+
+### 12. **Flagged User Leaderboard**
+- Slash command: `/flagged-leaderboard`
+- Shows top users with the most moderation strikes.
+- Great for transparency and spotting repeat offenders.
+
+---
