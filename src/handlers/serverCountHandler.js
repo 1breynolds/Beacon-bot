@@ -18,7 +18,7 @@ module.exports.updateServerCountChannel = async (guild) => {
 
         // update channel name to reflect current member count
         const memberCount = guild.memberCount;
-        await channel.setName(`┊・nonchalants: ${memberCount}`);
+        await channel.setName(`puppies: ${memberCount}`);
 
         console.log(`[serverCountHandler] Server count updated.`);
     } catch (error) {

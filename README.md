@@ -1,6 +1,6 @@
-# **3am Discord Bot**
+# **Beacon Discord Bot**
 
-The **3am Discord Bot** is a powerful, modular, and fully customizable bot designed to enhance server management, encourage member engagement, and maintain a safe and interactive environment for your community.
+The **Beacon Discord Bot** is a powerful, modular, and fully customizable bot designed to enhance server management, encourage member engagement, and maintain a safe and interactive environment for your community.
 
 ---
 

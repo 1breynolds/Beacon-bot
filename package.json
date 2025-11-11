@@ -1,10 +1,12 @@
 {
-    "name": "3am-bot",
-    "version": "ALPHA",
+    "name": "beacon",
+    "version": "ALPHA-REVIVED",
+    "license": "Closed-source",
     "description": "Discord bot for the 3am community with various features",
     "main": "src/index.js",
     "scripts": {
-        "test": "echo \"This is a test message\" && exit 1"
+        "dev": "nodemon --watch src src/index.js",
+        "start": "node src/index.js"
     },
     "keywords": [],
     "author": "Ben Reynolds, Maxwell Wuchter",
@@ -20,6 +22,7 @@
     },
     "devDependencies": {
         "eslint": "^9.17.0",
-        "globals": "^15.13.0"
+        "globals": "^15.13.0",
+        "nodemon": "^3.1.10"
     }
 }

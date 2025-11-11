@@ -24,7 +24,7 @@ const saveInviteData = (data) => {
 
 // Update the invite data
 const updateInviteData = (guildId, userId, category, count) => {
-    const inviteData = this.readInviteData();
+    const inviteData = readInviteData();
 
     // Ensure the guild exists
     if (!inviteData[guildId]) {
@@ -88,15 +88,20 @@ const initializeInvites = async (client, guild) => {
 const trackInviteUsage = async (guild, member) => {
     const newInvites = await guild.invites.fetch();
     const inviteData = readInviteData();
-
-    const isFake = false;
     let usedInvite = null;
-    
+
+    // Ensure guild data exists, and a mapping for invited members to prevent double-counting
+    inviteData[guild.id] = inviteData[guild.id] || {};
+    inviteData[guild.id].invitedMembers = inviteData[guild.id].invitedMembers || {};
+
+    // Check if a reset was run recently (within last hour - 3600000 ms)
+    const resetTimestamp = inviteData[guild.id].resetTimestamp;
+    const isRecentReset = resetTimestamp && (Date.now() - resetTimestamp) < 3600000; // 1 hour window
+
     for (const invite of newInvites.values()) {
         const inviterId = invite.inviter?.id;
         if (!inviterId) continue; // skip if no inviter is associated
-        
-        inviteData[guild.id] = inviteData[guild.id] || {};
+
         inviteData[guild.id][inviterId] = inviteData[guild.id][inviterId] || {
             regular: 0,
             left: 0,
@@ -108,12 +113,25 @@ const trackInviteUsage = async (guild, member) => {
 
         if (invite.uses > previousUses) {
             usedInvite = invite; // Found the correct invite
-            const isFake = member.user.createdTimestamp > Date.now() - 7 * 24 * 60 * 60 * 1000; // Check for fake account (created within 7 days)
 
-            if (isFake) {
-                updateInviteData(guild.id, inviterId, 'fake', 1); // Increment fake count
-            } else {
-                updateInviteData(guild.id, inviterId, 'regular', 1); // Increment regular count
+            // If this member was already recorded as invited by this inviter, don't increment again
+            // UNLESS a reset was recently run, in which case everyone counts as new
+            const alreadyRecorded = !!inviteData[guild.id].invitedMembers[member.id];
+            const shouldCount = !alreadyRecorded || isRecentReset;
+
+            const isFake = member.user.createdTimestamp > Date.now() - 7 * 24 * 60 * 60 * 1000; // created within 7 days
+
+            if (shouldCount) {
+                if (isFake) {
+                    inviteData[guild.id][inviterId].fake += 1;
+                } else {
+                    // If invite.uses jumped by more than 1, account for the delta
+                    const delta = invite.uses - previousUses;
+                    inviteData[guild.id][inviterId].regular += delta;
+                }
+
+                // Record that this member was invited by this inviter to avoid double-counting
+                inviteData[guild.id].invitedMembers[member.id] = inviterId;
             }
 
             // Update currentUses to reflect the latest count
@@ -128,12 +146,31 @@ const trackInviteUsage = async (guild, member) => {
 
 const handleMemberLeave = async (client, member) => {
     const inviteData = readInviteData();
+
+    // Ensure guild data exists
+    inviteData[member.guild.id] = inviteData[member.guild.id] || {};
+    inviteData[member.guild.id].invitedMembers = inviteData[member.guild.id].invitedMembers || {};
+
+    // If we recorded who invited this member, use that mapping to decrement and remove the record
+    const inviterId = inviteData[member.guild.id].invitedMembers[member.id];
+    if (inviterId) {
+        updateInviteData(member.guild.id, inviterId, 'regular', -1);
+        // Remove the mapping so the user can be counted again if they rejoin and are tracked
+        delete inviteData[member.guild.id].invitedMembers[member.id];
+        console.log(`[inviteTracker] Decreased invite count for inviter ${inviterId} because ${member.user.tag} left.`);
+        saveInviteData(inviteData);
+        return;
+    }
+
+    // Fallback: try to detect from invites if we don't have a mapping
     const newInvites = await member.guild.invites.fetch();
     let leftInvite = null;
 
-    // check which invite was used by the member who left
     for (const invite of newInvites.values()) {
-        const previousUses = inviteData[member.guild.id] && inviteData[member.guild.id][invite.inviter.id] || 0;
+        const id = invite.inviter?.id;
+        if (!id) continue;
+
+        const previousUses = (inviteData[member.guild.id] && inviteData[member.guild.id][id] && inviteData[member.guild.id][id].currentUses) || 0;
         if (invite.uses > previousUses) {
             leftInvite = invite;
             break;
@@ -141,10 +178,11 @@ const handleMemberLeave = async (client, member) => {
     }
 
     if (leftInvite) {
-        const inviterId = leftInvite.inviter.id;
-        const currentInviteCount = inviteData[member.guild.id] && inviteData[member.guild.id][inviterId] || 0;
-        updateInviteData(member.guild.id, inviter.id, 'regular', -1);
-        console.log(`[inviteTracker] Decreased invite count for ${leftInvite.inviter.tag}. New invite count: ${currentInviteCount - 1}`);
+        const id = leftInvite.inviter?.id;
+        if (id) {
+            updateInviteData(member.guild.id, id, 'regular', -1);
+            console.log(`[inviteTracker] Decreased invite count for ${leftInvite.inviter?.tag || id}.`);
+        }
     }
 
     saveInviteData(inviteData); // save the updated data

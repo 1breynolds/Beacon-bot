@@ -1,15 +1,26 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { PRIMARY_COLOR, COLOR_ROLES } = require('../config.json');
+const { PRIMARY_COLOR, COLOR_ROLES, RULES_CHANNEL, INTRO_CHANNEL, ROLES_CHANNEL, ADULT_CHANNEL, TRACK_INVITES } = require('../config.json');
 
 const createWelcomeEmbed = (member, invite) => {
-    const inviterInfo = invite
-        ? `**<@${invite.inviter.id}>** now has **${invite.uses}** invites.`
-        : "Unable to track the inviter.";
+    let descriptionLines = [
+        `Before you start roaming around, check out the <#${RULES_CHANNEL}>.`,
+        `\nSwing by <#${ROLES_CHANNEL}> to grab your tags and \n<#${INTRO_CHANNEL}> to tell us all about yourself!`
+    ];
+
+    // Only add inviter info if invite tracking is enabled and we have invite data
+    if (TRACK_INVITES && invite && invite.inviter && member && member.guild) {
+        // Try to resolve the inviter's guild member to get their display name (nickname), fall back to username
+        const inviterMember = member.guild.members.cache.get(invite.inviter.id);
+        const inviterName = inviterMember ? inviterMember.displayName : (invite.inviter.username || invite.inviter.tag || `<@${invite.inviter.id}>`);
+        // Use the tracked count (from inviteData) if available, otherwise fall back to invite.uses
+        const displayCount = invite.trackedCount !== undefined ? invite.trackedCount : invite.uses;
+        descriptionLines.push(`\n**${inviterName}** now has **${displayCount}** invites.`);
+    }
 
     return new EmbedBuilder()
         .setColor(PRIMARY_COLOR)
-        .setTitle("Welcome to **3am**!")
-        .setDescription(`Nice to see you, ${member.toString()}!\n${inviterInfo}`)
+        .setTitle("Welcome to the pack - You're home now.")
+        .setDescription(descriptionLines.join('\n'))
         .setThumbnail(member.user.avatarURL())
         .setTimestamp();
 };
@@ -32,17 +43,16 @@ const createLeaderboardEmbed = (leaderboard) => {
 
 const createColorChangeEmbed = () => {
     return new EmbedBuilder()
-        .setTitle('🎉 Congratulations on Achieving the Humble Role! 🎉')
+        .setTitle('🐺 Alpha Colors: Claim Your Mark')
         .setDescription(
-            `Welcome to the best tier of 3am! Reaching the Humble role is a testament to your dedication and contributions to the server. 
-        
-            As a nonchalant Humble member, you’ve unlocked a special privilege: the ability to customize your name color!
-        
-            To choose your color:
-            👉 Press the **Color Picker** button below. Your name will update instantly to reflect your choice.
-        
-            Thank you for your chill engagement and support. You’re a key part of what makes this community great! 🌟`
+            `Congratulations on reaching Level 20 — you’ve earned the right to a custom color!
+
+            🎨 How to Choose:
+            ✅ React below to select your color (First one's on us).
+            ✅ You can only wear one color at a time.
+            ✅ Want to change? Spend some points.`
         )
+        .setFooter({ text: "🐾 Wear your colors with pride" })
         .setColor(PRIMARY_COLOR);        
 };
 
@@ -88,9 +98,29 @@ const createColorPickerButtons = () => {
     return [row1, row2]
 };
 
+const createRolePickerEmbed = () => {
+    return new EmbedBuilder()
+        .setTitle('🎟️ The Doghouse After Dark 🐕🌙')
+        .setDescription(`Some topics aren't for pups!
+            \nIf you're 18+ and want access to our grown-up lounge, press the button below to unlock the <#${ADULT_CHANNEL}> channel.
+            \n🐶 Keep in mind: even here, the Kennel rules still apply — respect the pack, keep it classy.`)
+        .setColor(PRIMARY_COLOR);
+};
+
+const createRolePickerButton = () => {
+    return new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('ADULT_ROLE')
+            .setLabel('🔞')
+            .setStyle(ButtonStyle.Primary)
+    );
+};
+
 module.exports = {
     createWelcomeEmbed,
     createLeaderboardEmbed,
     createColorChangeEmbed,
-    createColorPickerButtons
+    createColorPickerButtons,
+    createRolePickerEmbed,
+    createRolePickerButton
 }

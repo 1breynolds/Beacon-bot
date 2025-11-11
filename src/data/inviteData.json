@@ -1,18 +1,14 @@
 {
-  "guild_id": {
-    "test_id": {
-      "regular": 0,
-      "left": 0,
-      "fake": 0,
-      "currentUses": 0
-    }
-  },
-  "1317383973936042045": {
+  "1432423121650192406": {
+    "invitedMembers": {
+      "846807769293783050": "222505046246424576"
+    },
+    "resetTimestamp": 1762849019720,
     "222505046246424576": {
-      "regular": 4,
+      "regular": 15,
       "left": 0,
       "fake": 0,
-      "currentUses": 4
+      "currentUses": 15
     }
   }
 }

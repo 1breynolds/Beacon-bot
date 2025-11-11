@@ -68,16 +68,25 @@ const generateLeaderboard = () => {
     for (const guildId in inviteData) {
         const guild = inviteData[guildId];
         for (const inviterId in guild) {
-            const inviter = guild[inviterId];
-            const totalInvites = inviter.regular + inviter.left + inviter.fake;
+            // Skip non-inviter keys like "invitedMembers" and "resetTimestamp"
+            if (inviterId === 'invitedMembers' || inviterId === 'resetTimestamp') {
+                continue;
+            }
 
-            leaderboard.push({
-                username: inviterId,
-                totalInvites,
-                regular: inviter.regular,
-                left: inviter.left,
-                fake: inviter.fake,
-            });
+            const inviter = guild[inviterId];
+            
+            // Make sure inviter has the expected structure
+            if (inviter.regular !== undefined && inviter.left !== undefined && inviter.fake !== undefined) {
+                const totalInvites = inviter.regular + inviter.left + inviter.fake;
+
+                leaderboard.push({
+                    username: inviterId,
+                    totalInvites,
+                    regular: inviter.regular,
+                    left: inviter.left,
+                    fake: inviter.fake,
+                });
+            }
         }
     }
 

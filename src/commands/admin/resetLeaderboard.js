@@ -31,16 +31,42 @@ module.exports = {
             });
         }
 
-        // reset all invite stats for guild
+        // reset all invite stats for guild — but preserve invite "currentUses" as baseline
         inviteData[guildId] = {};
+        inviteData[guildId].invitedMembers = {};
+        inviteData[guildId].resetTimestamp = Date.now(); // Mark when reset was run
 
-        // save updated invite data
-        saveInviteData(inviteData);
+        try {
+            // Fetch current invites for the guild and use their current uses as the baseline
+            const invites = await interaction.guild.invites.fetch();
 
-        // send confirmation message
-        return interaction.reply({
-            content: '✅ The invite leaderboard has been successfully reset.',
-            ephemeral: false,
-        });
+            invites.forEach(invite => {
+                const inviterId = invite.inviter?.id;
+                if (!inviterId) return;
+
+                // Set currentUses to the current invite.uses as baseline
+                // Only NEW uses after this reset will be counted
+                inviteData[guildId][inviterId] = {
+                    regular: 0,
+                    left: 0,
+                    fake: 0,
+                    currentUses: invite.uses || 0
+                };
+            });
+
+            // save updated invite data
+            saveInviteData(inviteData);
+
+            // send confirmation message
+            return interaction.reply({
+                content: '✅ The invite leaderboard has been successfully reset.',
+                ephemeral: false,
+            });
+        } catch (err) {
+            console.error('[reset_leaderboard] Error fetching invites for baseline after reset:', err);
+            // still save the cleared data if fetch failed
+            saveInviteData(inviteData);
+            return interaction.reply({ content: '⚠️ Leaderboard reset, but failed to fetch invites for baseline. Check logs.', ephemeral: true });
+        }
     }
 };
