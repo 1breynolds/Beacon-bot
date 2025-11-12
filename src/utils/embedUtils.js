@@ -116,11 +116,26 @@ const createRolePickerButton = () => {
     );
 };
 
+const createRulesEmbed = (rulesText) => {
+    return new EmbedBuilder()
+        .setTitle('📜 Kennel Rules')
+        .setDescription(rulesText)
+        .setColor(PRIMARY_COLOR)
+};
+
+const createRoleGuideEmbed = (roleGuideText) => {
+    return new EmbedBuilder()
+        .setDescription(roleGuideText)
+        .setColor(PRIMARY_COLOR)
+};
+
 module.exports = {
     createWelcomeEmbed,
     createLeaderboardEmbed,
     createColorChangeEmbed,
     createColorPickerButtons,
     createRolePickerEmbed,
-    createRolePickerButton
+    createRolePickerButton,
+    createRulesEmbed,
+    createRoleGuideEmbed
 }
