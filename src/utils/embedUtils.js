@@ -129,6 +129,13 @@ const createRoleGuideEmbed = (roleGuideText) => {
         .setColor(PRIMARY_COLOR)
 };
 
+const createTicketEmbed = (ticketText) => {
+    return new EmbedBuilder()
+        .setTitle('🎫 Ticket Support')
+        .setDescription(ticketText)
+        .setColor(PRIMARY_COLOR)
+};
+
 module.exports = {
     createWelcomeEmbed,
     createLeaderboardEmbed,
@@ -138,4 +145,6 @@ module.exports = {
     createRolePickerButton,
     createRulesEmbed,
     createRoleGuideEmbed
+    ,
+    createTicketEmbed
 }
