@@ -1,6 +1,22 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { PRIMARY_COLOR, COLOR_ROLES, RULES_CHANNEL, INTRO_CHANNEL, ROLES_CHANNEL, ADULT_CHANNEL, TRACK_INVITES } = require('../config.json');
 
+// Palette of colors used for confessions/replies. Add or reorder as desired.
+const RANDOM_COLOR_PALETTE = [
+    '#5865F2', // blurple
+    '#FF6B6B', // soft red
+    '#F1C40F', // yellow
+    '#2ECC71', // green
+    '#9B59B6', // purple
+    '#E67E22', // orange
+    '#3498DB', // blue
+    '#1ABC9C', // teal
+    '#FF7BCB', // pink
+    '#95A5A6'  // grey
+];
+
+const getRandomColor = () => RANDOM_COLOR_PALETTE[Math.floor(Math.random() * RANDOM_COLOR_PALETTE.length)];
+
 const createWelcomeEmbed = (member, invite) => {
     let descriptionLines = [
         `Before you start roaming around, check out the <#${RULES_CHANNEL}>.`,
@@ -147,4 +163,6 @@ module.exports = {
     createRoleGuideEmbed
     ,
     createTicketEmbed
+    ,
+    getRandomColor
 }
